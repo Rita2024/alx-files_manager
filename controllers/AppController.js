@@ -1,19 +1,16 @@
-/* eslint-disable import/no-named-as-default */
-import redisClient from '../utils/redis';
-import dbClient from '../utils/db';
+const { checkRedisHealth, countUsers, countFiles } = require('../utils'); // Import helper functions
 
-export default class AppController {
-    static getStatus(req, res) {
-        res.status(200).json({
-            redis: redisClient.isAlive(),
-            db: dbClient.isAlive(),
-        });
-    }
+exports.getStatus = async (req, res) => {
+  const isRedisHealthy = await checkRedisHealth();
+  const isDbHealthy = await checkDatabaseHealth(); // Function to check database health (implementation not provided)
 
-    static getStats(req, res) {
-        Promise.all([dbClient.nbUsers(), dbClient.nbFiles()])
-            .then(([usersCount, filesCount]) => {
-                res.status(200).json({ users: usersCount, files: filesCount });
-            });
-    }
-}
+  res.status(200).json({ redis: isRedisHealthy, db: isDbHealthy });
+};
+
+exports.getStats = async (req, res) => {
+  const usersCount = await countUsers();
+  const filesCount = await countFiles();
+
+  res.status(200).json({ users: usersCount, files: filesCount });
+};
+
