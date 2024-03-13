@@ -1,16 +1,19 @@
-const { checkRedisHealth, countUsers, countFiles } = require('../utils'); // Import helper functions
+const dbClient = require('../utils/db');
+const redisClient = require('../utils/redis');
 
-exports.getStatus = async (req, res) => {
-  const isRedisHealthy = await checkRedisHealth();
-  const isDbHealthy = await checkDatabaseHealth(); // Function to check database health (implementation not provided)
+class AppController {
+  static getStatus(req, res) {
+    const status = {
+      redis: redisClient.isAlive(),
+      db: dbClient.isAlive(),
+    };
+    res.status(200).send(status);
+  }
 
-  res.status(200).json({ redis: isRedisHealthy, db: isDbHealthy });
-};
-
-exports.getStats = async (req, res) => {
-  const usersCount = await countUsers();
-  const filesCount = await countFiles();
-
-  res.status(200).json({ users: usersCount, files: filesCount });
-};
-
+  static async getStats(req, res) {
+    const users = await dbClient.nbUsers();
+    const files = await dbClient.nbFiles();
+    res.status(200).send({ users, files });
+  }
+}
+module.exports = AppController;
