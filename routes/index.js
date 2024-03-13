@@ -1,48 +1,37 @@
-import express from 'express';
-// Import only necessary controllers
+// eslint-disable-next-line no-unused-vars
+import { Express } from 'express';
 import AppController from '../controllers/AppController';
 import AuthController from '../controllers/AuthController';
 import UsersController from '../controllers/UsersController';
 import FilesController from '../controllers/FilesController';
-// Import specific middleware functions
-import basicAuthenticate from '../middlewares/auth/basicAuthenticate';
-import xTokenAuthenticate from '../middlewares/auth/xTokenAuthenticate';
-import errorResponse from '../middlewares/error/errorResponse';
+import { basicAuthenticate, xTokenAuthenticate } from '../middlewares/auth';
+import { APIError, errorResponse } from '../middlewares/error';
 
 /**
  * Injects routes with their handlers to the given Express application.
- * @param {express.Application} api
+ * @param {Express} api
  */
 const injectRoutes = (api) => {
-  // Group routes using a router for better organization
-  const router = express.Router();
+    api.get('/status', AppController.getStatus);
+    api.get('/stats', AppController.getStats);
 
-  router.get('/status', AppController.getStatus);
-  router.get('/stats', AppController.getStats);
+    api.get('/connect', basicAuthenticate, AuthController.getConnect);
+    api.get('/disconnect', xTokenAuthenticate, AuthController.getDisconnect);
 
-  router.get('/connect', basicAuthenticate, AuthController.getConnect);
-  router.get('/disconnect', xTokenAuthenticate, AuthController.getDisconnect);
+    api.post('/users', UsersController.postNew);
+    api.get('/users/me', xTokenAuthenticate, UsersController.getMe);
 
-  router.post('/users', UsersController.postNew);
-  router.get('/users/me', xTokenAuthenticate, UsersController.getMe);
+    api.post('/files', xTokenAuthenticate, FilesController.postUpload);
+    api.get('/files/:id', xTokenAuthenticate, FilesController.getShow);
+    api.get('/files', xTokenAuthenticate, FilesController.getIndex);
+    api.put('/files/:id/publish', xTokenAuthenticate, FilesController.putPublish);
+    api.put('/files/:id/unpublish', xTokenAuthenticate, FilesController.putUnpublish);
+    api.get('/files/:id/data', FilesController.getFile);
 
-  router.post('/files', xTokenAuthenticate, FilesController.postUpload);
-  router.get('/files/:id', xTokenAuthenticate, FilesController.getShow);
-  router.get('/files', xTokenAuthenticate, FilesController.getIndex);
-  router.put('/files/:id/publish', xTokenAuthenticate, FilesController.putPublish);
-  router.put('/files/:id/unpublish', xTokenAuthenticate, FilesController.putUnpublish);
-  router.get('/files/:id/data', FilesController.getFile);
-
-  // Handle 404 errors for unmatched routes
-  router.all('*', (req, res, next) => {
-    errorResponse(new APIError(404, `Cannot ${req.method} ${req.url}`), req, res, next);
-  });
-
-  // Apply error middleware globally
-  api.use(errorResponse);
-
-  // Mount the router to the application
-  api.use('/api', router); // Example path prefix for API routes
+    api.all('*', (req, res, next) => {
+        errorResponse(new APIError(404, `Cannot ${req.method} ${req.url}`), req, res, next);
+    });
+    api.use(errorResponse);
 };
 
 export default injectRoutes;
