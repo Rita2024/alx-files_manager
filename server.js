@@ -1,21 +1,15 @@
-const express = require('express');
+import express from 'express';
+import router from './routes/index';
 
-const routes = require('./routes/index');
+const port = parseInt(process.env.PORT, 10) || 5000;
 
-// env variables
-const port = process.env.PORT || 5000;
-
-// app
 const app = express();
 
-// middlewares
 app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
+app.use('/', router);
 
-// routes
-app.use('/', routes);
-
-// start server
 app.listen(port, () => {
-  console.log(`Server is running on http://localhost:${port}`);
+  console.log(`server running on port ${port}`);
 });
+
+export default app;

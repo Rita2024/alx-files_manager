@@ -73,7 +73,8 @@ describe('+ FilesController', () => {
             if (callback) {
               callback();
             }
-          }).catch((deleteErr) => done(deleteErr));
+          })
+          .catch((deleteErr) => done(deleteErr));
       }).catch((connectErr) => done(connectErr));
   };
   const signUp = (user, callback) => {
@@ -190,7 +191,7 @@ describe('+ FilesController', () => {
             return done(requestErr);
           }
           expect(res.body).to.deep.eql({ error: 'Missing type' });
-	done();
+          done();
         });
     });
 
@@ -363,7 +364,8 @@ describe('+ FilesController', () => {
         .end((requestErr, res) => {
           if (requestErr) {
             console.error(requestErr);
-            return done(requestErr);}
+            return done(requestErr);
+          }
           expect(res.body).to.deep.eql({ error: 'Not found' });
           done();
         });
@@ -526,7 +528,8 @@ describe('+ FilesController', () => {
         .end((requestErr, res) => {
           if (requestErr) {
             console.error(requestErr);
-            return done(requestErr);}
+            return done(requestErr);
+          }
           expect(res.body).to.deep.eql({ error: 'Not found' });
           done();
         });
@@ -612,7 +615,7 @@ describe('+ FilesController', () => {
           expect(res.body.isPublic).to.eql(false);
           expect(res.body.parentId).to.eql(0);
           done();
-	});
+        });
     });
   });
 
